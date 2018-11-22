@@ -46,7 +46,7 @@ Kinematics::output Kinematics::getRPM(float linear_x, float linear_y, float angu
   //convert rad/s to rad/min
   angular_vel_z_mins_ = angular_z * 60;
 
-  //Vt = ω * radius
+  //Vt = ω * radius　角速度とタイヤの幅から回転速度を計算
   tangential_vel_ = angular_vel_z_mins_ * base_width_;
 
   x_rpm_ = linear_vel_x_mins_ / circumference_;
@@ -55,8 +55,8 @@ Kinematics::output Kinematics::getRPM(float linear_x, float linear_y, float angu
 
   Kinematics::output rpm;
 
-  //calculate for the target motor RPM and direction
-  //front-left motor
+  //calculate for the target motor RPM and direction　三次元空間の軸配置
+  //front-left motor  各軸の回転をタイヤの取付位置・方向に合わせて合成してRPMを計算する
   rpm.motor1 = x_rpm_ - y_rpm_ - tan_rpm_;
   //rear-left motor
   rpm.motor3 = x_rpm_ + y_rpm_ - tan_rpm_;
@@ -111,10 +111,10 @@ Kinematics::velocities Kinematics::getVelocities(int motor1, int motor2, int mot
 {
   Kinematics::velocities vel;
 
-  double average_rpm_x = (motor1 + motor2 + motor3 + motor4) / 4; // RPM
+  double average_rpm_x = (motor1 + motor2 + motor3 + motor4) / 4; // RPM  各モータのRPMからロボット全体の平均RPMを計算
   //convert revolutions per minute to revolutions per second
   double average_rps_x = average_rpm_x / 60; // RPS
-  vel.linear_x = (average_rps_x * (wheel_diameter_ * PI)); // m/s
+  vel.linear_x = (average_rps_x * (wheel_diameter_ * PI)); // m/s (回転回数/s * (直径 * PI))　＝　移動距離/s
 
   double average_rpm_y = (-motor1 + motor2 + motor3 - motor4) / 4; // RPM
   //convert revolutions per minute in y axis to revolutions per second
@@ -131,6 +131,6 @@ Kinematics::velocities Kinematics::getVelocities(int motor1, int motor2, int mot
 
 int Kinematics::rpmToPWM(int rpm)
 {
-  //remap scale of target RPM vs MAX_RPM to PWM
+  //remap scale of target RPM vs MAX_RPM to PWM   引数のRPMをPWMの分解能(256)で再マップする
   return (((double) rpm / (double) max_rpm_) * pwm_res_);
 }
